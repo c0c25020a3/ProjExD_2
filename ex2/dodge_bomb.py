@@ -15,6 +15,20 @@ DELTA = {
 }
 
 
+def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
+    """
+    オブジェクトが画面内かどうかを判定する関数
+    引数: 調べたいRectオブジェクト
+    戻り値: 横方向と縦方向がそれぞれ画面内かどうか 
+    """
+    yoko, tate = True, True
+    if obj_rct.left < 0 or WIDTH < obj_rct.right:
+        yoko = False
+    if obj_rct.top < 0 or HEIGHT < obj_rct.bottom:
+        tate = False
+    return yoko, tate
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -47,9 +61,21 @@ def main():
                 sum_mv[1] += dy
 
         kk_rct.move_ip(sum_mv)
+        yoko, tate = check_bound(kk_rct)
+        if not yoko:
+            kk_rct.move_ip(-sum_mv[0], 0)
+        if not tate:
+            kk_rct.move_ip(0, -sum_mv[1])
+
         screen.blit(kk_img, kk_rct)
 
         bb_rct.move_ip(vx, vy)
+        yoko, tate = check_bound(bb_rct)
+        if not yoko:
+            vx *= -1
+        if not tate:
+            vy *= -1
+
         screen.blit(bb_img, bb_rct)
 
         pg.display.update()
