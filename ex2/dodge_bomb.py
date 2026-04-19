@@ -1,6 +1,7 @@
 import os
 import sys
 import random
+import time
 import pygame as pg
 
 
@@ -27,6 +28,27 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     if obj_rct.top < 0 or HEIGHT < obj_rct.bottom:
         tate = False
     return yoko, tate
+
+
+def gameover(screen: pg.Surface) -> None:
+    """
+    ゲームオーバー画面を5秒間表示する関数
+     引数: ゲーム画面のSurface
+    """
+    black_surf = pg.Surface((WIDTH, HEIGHT))
+    pg.draw.rect(black_surf, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
+    black_surf.set_alpha(200)
+
+    font = pg.font.Font(None, 50)
+    txt = font.render("Game Over", True, (255, 255, 255))
+    black_surf.blit(txt, (WIDTH//2 - txt.get_width()//2, HEIGHT//2 - 30))
+    cry_img = pg.transform.rotozoom(pg.image.load("fig/8.png"), 0, 0.9)
+    black_surf.blit(cry_img, (WIDTH//2 - 150, HEIGHT//2 - 50))
+    black_surf.blit(cry_img, (WIDTH//2 + 100, HEIGHT//2 - 50))
+
+    screen.blit(black_surf, (0, 0))
+    pg.display.update()
+    time.sleep(5)
 
 
 def main():
@@ -78,6 +100,7 @@ def main():
 
         screen.blit(bb_img, bb_rct)
         if kk_rct.colliderect(bb_rct):
+            gameover(screen)
             return
 
         pg.display.update()
