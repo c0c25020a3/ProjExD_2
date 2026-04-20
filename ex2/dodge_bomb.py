@@ -29,19 +29,40 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
         tate = False
     return yoko, tate
 
-def init_bb_imgs() ->tuple[list[pg.Surface], list[int]]:
+
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """
     10段階の爆弾画像リストと加速度リストを返す関数
     戻り値: 爆弾画像のリストと加速度のリスト
     """
-    bb_imgs=[]
-    for r in range(1,11):
+    bb_imgs = []
+    for r in range(1, 11):
         bb_img = pg.Surface((20*r, 20*r))
         bb_img.set_colorkey((0, 0, 0))
         pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
         bb_imgs.append(bb_img)
     bb_accs = [a for a in range(1, 11)]
-    return bb_imgs, bb_accs   
+    return bb_imgs, bb_accs
+
+
+def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
+    """
+    移動方向に対応したこうかとん画像の辞書を返す関数
+    戻り値: 移動量と画像のセット
+    """
+    kk_base = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
+    return {
+        (0,   0): pg.transform.rotozoom(kk_base,   0, 1.0),
+        (+5,  0): pg.transform.flip(kk_base, True, False),
+        (+5, -5): pg.transform.rotozoom(kk_base,  45, 1.0),
+        (0,  -5): pg.transform.rotozoom(kk_base, 270, 1.0),
+        (-5, -5): pg.transform.rotozoom(kk_base, 315, 1.0),
+        (-5,  0): pg.transform.rotozoom(kk_base,   0, 1.0),
+        (-5, +5): pg.transform.rotozoom(kk_base,  45, 1.0),
+        (0,  +5): pg.transform.rotozoom(kk_base,  90, 1.0),
+        (+5, +5): pg.transform.rotozoom(kk_base, 135, 1.0),
+    }
+
 
 def gameover(screen: pg.Surface) -> None:
     """
@@ -82,6 +103,8 @@ def main():
     vx, vy = +5, +5
     bb_imgs, bb_accs = init_bb_imgs()
 
+    kk_imgs = get_kk_imgs()
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -96,18 +119,18 @@ def main():
                 sum_mv[0] += dx
                 sum_mv[1] += dy
 
+        kk_img = kk_imgs[tuple(sum_mv)]
         kk_rct.move_ip(sum_mv)
         yoko, tate = check_bound(kk_rct)
         if not yoko:
             kk_rct.move_ip(-sum_mv[0], 0)
         if not tate:
             kk_rct.move_ip(0, -sum_mv[1])
-
         screen.blit(kk_img, kk_rct)
 
         idx = min(tmr // 500, 9)
         bb_img = bb_imgs[idx]
-        
+
         old_center = bb_rct.center
         bb_rct = bb_img.get_rect()
         bb_rct.center = old_center
