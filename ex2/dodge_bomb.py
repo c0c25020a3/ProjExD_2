@@ -128,7 +128,7 @@ def main():
             kk_rct.move_ip(0, -sum_mv[1])
         screen.blit(kk_img, kk_rct)
 
-        avx = vx * bb_accs[min(tmr//500, 9)]
+        avx = vx * bb_accs[min(tmr//500, 9)]  # 500フレームごとに1段階速くなる
         avy = vy * bb_accs[min(tmr//500, 9)]
         bb_rct.move_ip(avx, avy)
         bb_img = bb_imgs[min(tmr//500, 9)]
